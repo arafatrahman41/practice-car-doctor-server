@@ -22,10 +22,11 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-
     const servicesCollection = client
       .db("pracCarDoctor")
       .collection("services");
+
+    const bookingCollection = client.db("pracCarDoctor").collection("bookings");
 
     // services api
     app.get("/services", async (req, res) => {
@@ -33,16 +34,25 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/services/:id", async(req, res) => {
+    app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
       console.log(id);
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) };
       const options = {
         projection: { title: 1, price: 1, service_id: 1, img: 1 },
       };
       const result = await servicesCollection.findOne(query, options);
+      
       res.send(result);
-    })
+    });
+
+    // booking api
+    app.post("/bookings", async(req, res) => {
+      const booking= req.body;
+      const result = await bookingCollection.insertOne(booking)
+      res.send(result)
+    });
+    
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -50,7 +60,7 @@ async function run() {
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
-    // Ensures that the client will close when you finish/error 
+    // Ensures that the client will close when you finish/error
   }
 }
 run().catch(console.dir);
