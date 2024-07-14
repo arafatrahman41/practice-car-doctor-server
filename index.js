@@ -8,10 +8,12 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5174"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
@@ -52,7 +54,15 @@ async function run() {
 
     // services api
     app.get("/services", async (req, res) => {
-      const result = await servicesCollection.find().toArray();
+      const filter = req.query;
+      console.log(filter);
+      const query = {
+        price: {$gt: 100}
+      };
+      const options = {
+        sort: { price: filter.sort === "asc" ? 1 : -1 },
+      };
+      const result = await servicesCollection.find(query, options).toArray();
       res.send(result);
     });
 
